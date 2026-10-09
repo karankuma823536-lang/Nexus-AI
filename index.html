@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         header { background-color: #4a90e2; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
         #chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; line-height: 1.4; }
+        .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; line-height: 1.4; word-break: break-word; }
         .user-message { background-color: #4a90e2; color: white; align-self: flex-end; }
         .ai-message { background-color: #e2e8f0; color: #333; align-self: flex-start; }
         #input-container { display: flex; padding: 10px; background: white; border-top: 1px solid #ccc; }
@@ -28,8 +28,9 @@
     </div>
 
     <script>
-        // यहाँ अपनी Gemini API Key डालें (जब आपके पास हो)
-         AQ.Ab8RN6LxDO078FWChTka6pfjNVuWLTEoaSTDGwTzVAbLS6BePQ
+        // यहाँ अपनी Gemini API Key डालें
+        const API_KEY = "YAHAN_APNI_ASLI_API_KEY_DAALEIN";
+        AQ.Ab8RN6Lhbpun90uaGs1ZVjr_nhRd9p2nD6yKBY6bDMI_ma_I5Q
 
         async function sendMessage() {
             const inputField = document.getElementById('user-input');
@@ -54,7 +55,7 @@
 
             try {
                 if (API_KEY === "YOUR_GEMINI_API_KEY") {
-                    aiDiv.textContent = "बढ़िया सवाल है! (नोट: असली एआई जवाब पाने के लिए कृपया अपनी Gemini API Key सेट करें)।";
+                    aiDiv.textContent = "बढ़िया सवाल है! (नोट: कृपया अपनी असली Gemini API Key सेट करें)";
                     return;
                 }
 
@@ -67,8 +68,11 @@
                 });
 
                 const data = await response.json();
-                const aiReply = data.candidates[0].content.parts[0].text;
-                aiDiv.textContent = aiReply;
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    aiDiv.textContent = data.candidates[0].content.parts[0].text;
+                } else {
+                    aiDiv.textContent = "क्षमा करें, AI से सही जवाब नहीं मिल पाया।";
+                }
             } catch (error) {
                 aiDiv.textContent = "क्षमा करें, कुछ तकनीकी दिक्कत आ रही है। कृपया पुनः प्रयास करें।";
             }
