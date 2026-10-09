@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI</title>
+    <title>Nexus-AI</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
         header { background-color: #4a90e2; color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
         #chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .message { padding: 10px 15px; border-radius: 10px; max-width: 80%; line-height: 1.4; }
@@ -13,25 +13,31 @@
         .ai-message { background-color: #e2e8f0; color: #333; align-self: flex-start; }
         #input-container { display: flex; padding: 10px; background: white; border-top: 1px solid #ccc; }
         #user-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; font-size: 16px; }
-        #send-btn { background-color: #4a90e2; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        #send-btn { background-color: #4a90e2; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        #send-btn:hover { background-color: #357abd; }
     </style>
 </head>
 <body>
-    <header>Nexus AI</header>
+    <header>Nexus-AI</header>
     <div id="chat-container">
-        <div class="message ai-message">नमस्ते! मैं Nexus AI हूँ। आज मैं आपकी क्या मदद कर सकता हूँ?</div>
+        <div class="message ai-message">नमस्ते! मैं Nexus-AI हूँ। आप मुझसे हिंदी या अंग्रेजी में कुछ भी पूछ सकते हैं!</div>
     </div>
     <div id="input-container">
         <input type="text" id="user-input" placeholder="यहाँ अपना संदेश लिखें...">
         <button id="send-btn" onclick="sendMessage()">भेजें</button>
     </div>
+
     <script>
-        function sendMessage() {
+        // यहाँ अपनी Gemini API Key डालें (जब आपके पास हो)
+        const API_KEY = "YOUR_GEMINI_API_KEY"; 
+
+        async function sendMessage() {
             const inputField = document.getElementById('user-input');
             const chatContainer = document.getElementById('chat-container');
             const text = inputField.value.trim();
             if (text === "") return;
 
+            // यूजर का मैसेज स्क्रीन पर दिखाएं
             const userDiv = document.createElement('div');
             userDiv.className = 'message user-message';
             userDiv.textContent = text;
@@ -39,13 +45,34 @@
             inputField.value = '';
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            setTimeout(() => {
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'message ai-message';
-                aiDiv.textContent = "बढ़िया सवाल है! मैं Nexus AI आपकी सेवा के लिए हमेशा तैयार हूँ।";
-                chatContainer.appendChild(aiDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 1000);
+            // AI का जवाब लाने के लिए लोडिंग मैसेज दिखाना
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'message ai-message';
+            aiDiv.textContent = "सोच रहा हूँ...";
+            chatContainer.appendChild(aiDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                if (API_KEY === "YOUR_GEMINI_API_KEY") {
+                    aiDiv.textContent = "बढ़िया सवाल है! (नोट: असली एआई जवाब पाने के लिए कृपया अपनी Gemini API Key सेट करें)।";
+                    return;
+                }
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: text }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiReply = data.candidates[0].content.parts[0].text;
+                aiDiv.textContent = aiReply;
+            } catch (error) {
+                aiDiv.textContent = "क्षमा करें, कुछ तकनीकी दिक्कत आ रही है। कृपया पुनः प्रयास करें।";
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
 </body>
